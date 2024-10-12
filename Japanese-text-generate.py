@@ -1,78 +1,14 @@
 import re
 import MeCab  # MeCabを使用して漢字をひらがなに変換
+from dotenv import load_dotenv
+import os
 
-# フレーズリスト（英語と日本語のペア）
-phrases = [
-    {"japanese": "お久しぶり", "english": "Long time no see"},  # "It's been a while"
-    {"japanese": "最近どう？", "english": "How have you been?"},  # "What's new?"
-    {"japanese": "調子はどう？", "english": "How's it going?"},  # "How's everything?"
-    {"japanese": "やっぱり", "english": "As expected"},  # "I knew it"
-    {"japanese": "なんとなく", "english": "Just because"},  # "No specific reason"
-    {"japanese": "気にしないで", "english": "Don't worry about it"},  # "No worries"
-    {"japanese": "めっちゃ嬉しい", "english": "I'm so happy"},  # "Super glad"
-    {"japanese": "信じられない", "english": "I can't believe it"},  # "Unbelievable"
-    {"japanese": "その通り", "english": "Exactly"},  # "That's right"
-    {"japanese": "たぶんね", "english": "Maybe"},  # "Probably"
-    {"japanese": "どうしても", "english": "No matter what"},  # "By all means"
-    {"japanese": "大変だね", "english": "That's tough"},  # "Must be hard"
-    {"japanese": "何て言うか", "english": "How should I say this?"},  # "It's like..."
-    {"japanese": "そんなことないよ", "english": "Not really"},  # "I don't think so"
-    {"japanese": "ありえる", "english": "That's possible"},  # "Could happen"
-    {"japanese": "どうしようかな", "english": "What should I do?"},  # "I'm not sure"
-    {"japanese": "楽しみにしてる", "english": "I'm looking forward to it"},  # "Can't wait"
-    {"japanese": "ちょっと無理かも", "english": "It might be a bit difficult"},  # "Not sure if I can"
-    {"japanese": "そう言えば", "english": "By the way"},  # "Speaking of which"
-    {"japanese": "やっと終わった", "english": "Finally finished"},  # "It's done at last"
-    {"japanese": "たしかに", "english": "Indeed"},  # "That's true"
-    {"japanese": "楽しそう", "english": "Looks fun"},  # "Seems enjoyable"
-    {"japanese": "本当に助かった", "english": "You really helped me"},  # "I appreciate it"
-    {"japanese": "それな", "english": "Exactly"},  # "I know, right?"
-    {"japanese": "悪くないね", "english": "Not bad"},  # "Pretty decent"
-    {"japanese": "なんとかなる", "english": "It'll work out somehow"},  # "It'll be fine"
-    {"japanese": "全然大丈夫", "english": "Totally fine"},  # "No problem at all"
-    {"japanese": "やってみる", "english": "I'll give it a try"},  # "I'll try it out"
-    {"japanese": "すごく助かった", "english": "That really helped"},  # "It was a big help"
-    {"japanese": "気をつけないと", "english": "Gotta be careful"},  # "I need to be cautious"
-    {"japanese": "おかげさまで", "english": "Thanks to you"},  # "Because of you, it's better"
-    {"japanese": "お先に", "english": "I'll go ahead"},  # "Going first"
-    {"japanese": "よくあることだよ", "english": "It happens"},  # "Common thing"
-    {"japanese": "まぁまぁ", "english": "Not too bad"},  # "Not too bad"
-    {"japanese": "なんだかんだで", "english": "One way or another"},  # "Somehow or another"
-    {"japanese": "考えとく", "english": "I'll think about it"},  # "Let me consider it"
-    {"japanese": "ついでに", "english": "By the way"},  # "While you're at it"
-    {"japanese": "どうにかなる", "english": "It'll work out"},  # "It'll be okay"
-    {"japanese": "いろいろありがとう", "english": "Thanks for everything"},  # "Appreciate all the help"
-    {"japanese": "また今度", "english": "Maybe next time"},  # "Let's do it some other time"
-    {"japanese": "微妙だね", "english": "It's iffy"},  # "Not so sure"
-    {"japanese": "やっぱりそうか", "english": "I thought so"},  # "As expected"
-    {"japanese": "もう少しで", "english": "Almost there"},  # "Just a bit more"
-    {"japanese": "急にごめんね", "english": "Sorry for the sudden request"},  # "Didn't mean to surprise you"
-    {"japanese": "この間", "english": "The other day"},  # "Recently"
-    {"japanese": "お疲れ様でした", "english": "Good work"},  # "Thanks for your hard work"
-    {"japanese": "確かにそうだね", "english": "You're right"},  # "That's true"
-    {"japanese": "なんか変だね", "english": "Something feels off"},  # "Seems weird"
-    {"japanese": "できれば", "english": "If possible"},  # "Preferably"
-    {"japanese": "たまにはいいね", "english": "It's nice once in a while"},  # "Not bad for a change"
-    {"japanese": "助かる", "english": "That helps"},  # "Appreciate it"
-    {"japanese": "そうかもね", "english": "Maybe so"},  # "Could be"
-    {"japanese": "気に入った", "english": "I like it"},  # "I'm into it"
-    {"japanese": "そんなに", "english": "Not that much"},  # "Not really"
-    {"japanese": "おそらく", "english": "Probably"},  # "Most likely"
-    {"japanese": "どういうこと？", "english": "What do you mean?"},  # "How so?"
-    {"japanese": "正直言うと", "english": "To be honest"},  # "Honestly"
-    {"japanese": "思ったより", "english": "More than I expected"},  # "Surprisingly"
-    {"japanese": "うまくいった", "english": "It went well"},  # "Succeeded"
-    {"japanese": "ちょうどいい", "english": "Just right"},  # "Perfect timing"
-    {"japanese": "気になる", "english": "I'm curious"},  # "Interested in"
-    {"japanese": "すっかり忘れてた", "english": "I completely forgot"},  # "Slipped my mind"
-    {"japanese": "なるべく早く", "english": "As soon as possible"},  # "As quickly as possible"
-    {"japanese": "冗談でしょ？", "english": "You're kidding, right?"},  # "No way!"
-]
+# .envファイルを読み込む
+load_dotenv()
 
-
-# 入力と出力のSRTファイルパス
-input_srt_file_path = "C:/Users/user/Documents/AudioFiles/JapanesePhrase/テキストに変換する音声ファイル/シーケンス 01.srt"
-output_srt_file_path = "C:/Users/user/Documents/AudioFiles/JapanesePhrase/テキストに変換する音声ファイル/英語学習2-1.srt"
+# 環境変数からSRTファイルのパスを取得
+input_srt_file_path = os.getenv('INPUT_SRT_FILE_PATH')
+output_srt_file_path = os.getenv('OUTPUT_SRT_FILE_PATH')
 
 def load_srt_file(file_path):
     """SRTファイルを読み込み、タイムスタンプとテキストをパースする"""
@@ -83,7 +19,7 @@ def load_srt_file(file_path):
     matches = pattern.findall(content)
 
     subtitles = []
-    for match in matches:
+    for match in matches: 
         index = int(match[0])
         start_time = match[1]
         end_time = match[2]
@@ -138,7 +74,7 @@ def hepburn_romaji(katakana_text):
     return romaji_text
 
 def katakana_to_hiragana(katakana_text):
-    """Convert Katakana to Hiragana"""
+    """カタカナをひらがなに変換"""
     return katakana_text.translate(str.maketrans("アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポャュョッーヴ",
                                                 "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽゃゅょっーゔ"))
 
