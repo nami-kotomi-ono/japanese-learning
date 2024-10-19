@@ -8,6 +8,10 @@ load_dotenv()
 input_srt_file_path = os.getenv('INPUT_SRT_FILE_PATH')
 output_srt_file_path = os.getenv('OUTPUT_SRT_FILE_PATH')
 
+phrases = [
+    {"japanese": "お久しぶり", "english": "Long time no see"},  # "It's been a while"
+]
+
 def load_srt_file(file_path):
     """SRTファイルを読み込み、タイムスタンプとテキストをパースする"""
     with open(file_path, 'r', encoding='utf-8') as file:
