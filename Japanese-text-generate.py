@@ -1,12 +1,10 @@
 import re
-import MeCab  # MeCabを使用して漢字をひらがなに変換
+import MeCab
 from dotenv import load_dotenv
 import os
 
-# .envファイルを読み込む
 load_dotenv()
 
-# 環境変数からSRTファイルのパスを取得
 input_srt_file_path = os.getenv('INPUT_SRT_FILE_PATH')
 output_srt_file_path = os.getenv('OUTPUT_SRT_FILE_PATH')
 
@@ -30,7 +28,7 @@ def load_srt_file(file_path):
 
 def convert_kanji_to_hiragana(text):
     """漢字をひらがなに変換"""
-    tagger = MeCab.Tagger("-Oyomi")  # -Oyomi オプションで読み仮名を取得
+    tagger = MeCab.Tagger("-Oyomi")
     parsed = tagger.parse(text)
     hiragana_text = ''
     for line in parsed.splitlines():
@@ -64,9 +62,9 @@ def hepburn_romaji(katakana_text):
         'バ': 'ba', 'ビ': 'bi', 'ブ': 'bu', 'ベ': 'be', 'ボ': 'bo',
         'パ': 'pa', 'ピ': 'pi', 'プ': 'pu', 'ペ': 'pe', 'ポ': 'po',
         'ャ': 'ya', 'ュ': 'yu', 'ョ': 'yo',
-        'ッ': '',  # 'ッ' needs further handling for correct conversion
-        'ー': '-',  # Prolonged sound mark
-        'ヴ': 'vu'  # 'ヴ' sound
+        'ッ': '', 
+        'ー': '-',
+        'ヴ': 'vu'
     }
     romaji_text = ""
     for char in katakana_text:
@@ -100,14 +98,13 @@ def find_phrases_in_srt(subtitles, phrases):
                 speaker1_entry = {
                     'index': len(new_subtitles) + 1,
                     'start': current['start'],
-                    'end': next_entry['start'],  # エンド時間は後で調整するので、今は次のエントリの開始時間を使用
+                    'end': next_entry['start'],
                     'text': english_text
                 }
                 new_subtitles.append(speaker1_entry)
 
                 # 漢字の日本語フレーズを取得
                 japanese_text = phrase['japanese']
-
                 # 漢字をひらがなに変換
                 hiragana_text = convert_kanji_to_hiragana(japanese_text)
                 # ひらがなをカタカナに変換
@@ -131,12 +128,11 @@ def find_phrases_in_srt(subtitles, phrases):
                 speaker2_entry = {
                     'index': len(new_subtitles) + 1,
                     'start': next_entry['start'],
-                    'end': speaker2_end_time,  # エンド時間は後で調整するので、今は次のエントリの開始時間を使用
+                    'end': speaker2_end_time,
                     'text': combined_text
                 }
                 new_subtitles.append(speaker2_entry)
 
-                # インデックスを次の話者1のエントリに進める
                 i += 2
                 break
         else:
@@ -168,4 +164,4 @@ adjusted_subtitles = adjust_end_times(new_subtitles)
 # 新しいSRTファイルを保存
 save_srt_file(adjusted_subtitles, output_srt_file_path)
 
-print(f"新しいSRTファイルが作成されました: {output_srt_file_path}")
+print(f"新しいSRTファイルが作成されました。: {output_srt_file_path}")

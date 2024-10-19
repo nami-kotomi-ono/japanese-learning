@@ -163,9 +163,9 @@ def save_extendscript(script_content):
         file_path = os.path.join(audio_dir, "import_audio_to_premiere.jsx")
         with open(file_path, "w", encoding="utf-8") as script_file:
             script_file.write(script_content)
-        print(f"ExtendScriptが保存されました: {file_path}")
+        print(f"ExtendScriptが保存されました。: {file_path}")
     except Exception as e:
-        print(f"ExtendScriptファイルの保存に失敗しました: {e}")
+        print(f"ExtendScriptファイルの保存に失敗しました。: {e}")
 
 # フレーズのリスト
 phrases = [
