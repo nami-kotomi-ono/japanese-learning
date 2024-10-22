@@ -8,11 +8,9 @@ os.environ.pop('GOOGLE_APPLICATION_CREDENTIALS', None)
 load_dotenv()
 
 # 環境変数をチェック
-
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
 audio_dir = os.getenv('AUDIO_DIR', "default/path/if/not/set")
-
 os.makedirs(audio_dir, exist_ok=True)
 
 # ファイル名をクリーンアップする関数
@@ -113,7 +111,7 @@ def generate_extendscript(phrases):
         # 日本語音声ファイルを生成
         japanese_male_filename = f"{i+1:02d}[1J]{clean_filename(japanese_text)}{clean_filename(english_text)}.mp3"
         japanese_male_audio_file = synthesize_text(japanese_text, "ja-JP", "ja-JP-Neural2-D", japanese_male_filename, texttospeech.SsmlVoiceGender.MALE)
-        
+
         if japanese_male_audio_file is None:
             continue
 
@@ -167,10 +165,13 @@ def save_extendscript(script_content):
     except Exception as e:
         print(f"ExtendScriptファイルの保存に失敗しました。: {e}")
 
-# フレーズのリスト
-phrases = [
-    {"japanese": "お久しぶり", "english": "Long time no see"},
-]
+# スクリプトが直接実行された場合にのみ以下を実行
+if __name__ == "__main__":
+    
+    # フレーズのリスト
+    phrases = [
+        {"japanese": "お久しぶり", "english": "Long time no see"},
+    ]
 
-script_content = generate_extendscript(phrases)
-save_extendscript(script_content)
+    script_content = generate_extendscript(phrases)
+    save_extendscript(script_content)
