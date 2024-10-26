@@ -89,8 +89,8 @@ def find_phrases_in_srt(subtitles, phrases):
 
         for phrase in phrases:
             # テキストの末尾のピリオドと?を削除して比較
-            current_text = current['text'].rstrip('.?')
-            phrase_english = phrase['english'].rstrip('.?')
+            current_text = current['text'].replace('-', ' ').rstrip('.?')
+            phrase_english = phrase['english'].replace('-', ' ').rstrip('.?')
             if current_text.upper() == phrase_english.upper():
                 # 次のエントリ（話者2）が存在する場合のタイムスタンプ調整
                 next_entry = subtitles[i + 1]
